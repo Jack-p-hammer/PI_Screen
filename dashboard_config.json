@@ -1,0 +1,86 @@
+{
+  "widgets": [
+    {
+      "type": "weather",
+      "position": 0,
+      "enabled": false,
+      "color": [
+        0.3,
+        0.6,
+        0.3,
+        1
+      ]
+    },
+    {
+      "type": "weather",
+      "position": 2,
+      "enabled": true,
+      "color": [
+        0.3,
+        0.6,
+        0.3,
+        1
+      ]
+    },
+    {
+      "type": "quote",
+      "position": 1,
+      "enabled": false,
+      "color": [
+        0.3,
+        0.6,
+        0.3,
+        1
+      ]
+    },
+    {
+      "type": "finance",
+      "position": 3,
+      "enabled": true,
+      "color": [
+        0.2,
+        0.3,
+        0.4,
+        1
+      ]
+    },
+    {
+      "type": "system_monitor",
+      "position": 2,
+      "enabled": false,
+      "color": [
+        0.3,
+        0.6,
+        0.3,
+        1
+      ]
+    },
+    {
+      "type": "news",
+      "position": 5,
+      "enabled": true,
+      "color": [
+        0.6,
+        0.3,
+        0.3,
+        1
+      ]
+    },
+    {
+      "type": "calendar",
+      "position": 0,
+      "enabled": true,
+      "color": [
+        0.3,
+        0.3,
+        0.6,
+        1
+      ]
+    }
+  ],
+  "settings": {
+    "update_interval": 60,
+    "fullscreen": true,
+    "auto_start": true
+  }
+}

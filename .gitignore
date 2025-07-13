@@ -2,3 +2,4 @@ test.py
 .cache.sqlite
 .venv/
 widgets/__pycache__/
+API_keys.txt

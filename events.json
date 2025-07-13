@@ -1,0 +1,20 @@
+[
+  {
+    "title": "Team Meeting",
+    "date": "2025-07-14",
+    "time": "10:00 AM",
+    "description": "Weekly team sync"
+  },
+  {
+    "title": "Dentist Appointment",
+    "date": "2025-07-16",
+    "time": "2:30 PM",
+    "description": "Regular checkup"
+  },
+  {
+    "title": "Birthday Party",
+    "date": "2025-07-20",
+    "time": "6:00 PM",
+    "description": "Friend's birthday celebration"
+  }
+]

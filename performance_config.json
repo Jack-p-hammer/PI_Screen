@@ -1,0 +1,28 @@
+{
+  "update_intervals": {
+    "clock": 1,
+    "weather": 300,
+    "finance": 120,
+    "system_monitor": 10,
+    "news": 600,
+    "calendar": 300,
+    "quote": 1800
+  },
+  "cache_settings": {
+    "weather_cache": 1800,
+    "finance_cache": 120,
+    "system_cache": 10,
+    "news_cache": 600,
+    "calendar_cache": 300
+  },
+  "performance_mode": {
+    "enabled": true,
+    "reduce_chart_updates": true,
+    "disable_debug_logging": true,
+    "optimize_matplotlib": true
+  },
+  "widget_limits": {
+    "max_concurrent_widgets": 4,
+    "disable_heavy_widgets": false
+  }
+} 
