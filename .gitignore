@@ -1,3 +1,4 @@
 test.py
-widgets/weather.py
 .cache.sqlite
+.venv/
+widgets/__pycache__/
