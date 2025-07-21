@@ -3,3 +3,4 @@ test.py
 .venv/
 widgets/__pycache__/
 API_keys.txt
+test_widgets.py
