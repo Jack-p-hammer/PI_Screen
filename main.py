@@ -7,8 +7,8 @@ from kivy.uix.button import Button
 from kivy.clock import Clock
 from kivy.config import Config
 
-Config.set('graphics', 'fullscreen', 'auto')  # or '1' for always fullscreen
-Config.set('graphics', 'resizable', False)    # Optional: make window fixed-size
+# Config.set('graphics', 'fullscreen', 'auto')  # or '1' for always fullscreen
+# Config.set('graphics', 'resizable', False)    # Optional: make window fixed-size
 
 from widgets.weather import WeatherWidget
 from widgets.clock import ClockWidget
@@ -39,7 +39,7 @@ class Dashboard(BoxLayout):
         
         # Add configuration button (small, in corner)
         self.config_button = Button(
-            text="⚙",
+            text="⚙", # Took forever to figure this shit out
             size_hint=(None, None),
             size=(50, 50),
             pos_hint={'right': 1, 'top': 1},
@@ -85,7 +85,7 @@ class Dashboard(BoxLayout):
 
     def trigger_initial_updates(self):
         """Trigger immediate updates for all widgets on startup"""
-        print("🚀 Triggering initial widget updates...")
+        print("Triggering initial widget updates...")
         
         # Update clock immediately
         self.clock_widget.update()

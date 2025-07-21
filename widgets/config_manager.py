@@ -17,13 +17,14 @@ class ConfigManager:
     def _load_config(self):
         """Load configuration from JSON file"""
         default_config = {
+            "theme": "Warm Waters",
             "widgets": [
-                {"type": "weather", "position": 0, "enabled": True, "color": [0.2, 0.4, 0.6, 1]},
-                {"type": "system_monitor", "position": 1, "enabled": True, "color": [0.3, 0.6, 0.3, 1]},
-                {"type": "quote", "position": 2, "enabled": True, "color": [0.6, 0.5, 0.8, 1]},
-                {"type": "finance", "position": 3, "enabled": True, "color": [0.2, 0.3, 0.4, 1]},
-                {"type": "news", "position": 4, "enabled": False, "color": [0.6, 0.3, 0.3, 1]},
-                {"type": "calendar", "position": 5, "enabled": False, "color": [0.3, 0.3, 0.6, 1]}
+                {"type": "weather", "position": 0, "enabled": True, "color": [0.8, 0.6, 0.4, 1]},
+                {"type": "system_monitor", "position": 1, "enabled": True, "color": [0.6, 0.8, 0.9, 1]},
+                {"type": "quote", "position": 2, "enabled": True, "color": [0.9, 0.7, 0.5, 1]},
+                {"type": "finance", "position": 3, "enabled": True, "color": [0.7, 0.9, 0.8, 1]},
+                {"type": "news", "position": 4, "enabled": False, "color": [0.8, 0.6, 0.4, 1]},
+                {"type": "calendar", "position": 5, "enabled": False, "color": [0.6, 0.8, 0.9, 1]}
             ],
             "settings": {
                 "update_interval": 60,
@@ -52,66 +53,181 @@ class ConfigManager:
             print(f"Error saving config: {e}")
     
     def show_config_popup(self):
-        """Show configuration popup for touch-based management"""
-        content = BoxLayout(orientation='vertical', padding=10, spacing=10)
+        """Show configuration popup with visual layout matching dashboard"""
+        content = BoxLayout(orientation='horizontal', padding=10, spacing=10)
         
-        # Title
-        title = Label(text="Dashboard Configuration", size_hint_y=None, height=40)
-        content.add_widget(title)
+        # LEFT SIDE: Clock representation
+        left_side = BoxLayout(orientation='vertical', size_hint_x=0.5)
         
-        # Layout description
-        layout_desc = Label(
-            text="Layout: Clock (left) + 2x2 Grid (right)\nPositions: 0=Top-Left, 1=Top-Right, 2=Bottom-Left, 3=Bottom-Right",
-            size_hint_y=None, height=60, font_size='12sp'
+        # Clock title
+        clock_title = Label(
+            text="🕐 Clock Widget", 
+            size_hint_y=None, height=40,
+            font_size='16sp',
+            bold=True
         )
-        content.add_widget(layout_desc)
+        left_side.add_widget(clock_title)
         
-        # Widget configuration grid
-        widget_grid = GridLayout(cols=4, spacing=5, size_hint_y=None)
-        widget_grid.bind(minimum_height=widget_grid.setter('height'))
+        # Clock display area (visual representation)
+        clock_display = BoxLayout(
+            size_hint_y=0.8
+        )
         
-        # Headers
-        headers = ["Widget", "Position", "Enabled", "Color"]
-        for header in headers:
-            widget_grid.add_widget(Label(text=header, size_hint_y=None, height=30))
+        clock_label = Label(
+            text="12:34:56\nAM",
+            font_size='24sp',
+            bold=True,
+            color=(1, 1, 1, 1)
+        )
+        clock_display.add_widget(clock_label)
+        left_side.add_widget(clock_display)
         
-        # Widget rows
-        for i, widget_config in enumerate(self.config["widgets"]):
-            # Widget name
-            name_label = Label(text=widget_config["type"].replace("_", " ").title(), 
-                             size_hint_y=None, height=40)
-            widget_grid.add_widget(name_label)
+        # Clock info
+        clock_info = Label(
+            text="Clock is always active\nand updates every second",
+            size_hint_y=None, height=60,
+            font_size='12sp',
+            color=(0.7, 0.7, 0.7, 1)
+        )
+        left_side.add_widget(clock_info)
+        
+        content.add_widget(left_side)
+        
+        # RIGHT SIDE: 2x2 Grid with dropdowns
+        right_side = BoxLayout(orientation='vertical', size_hint_x=0.5)
+        
+        # Grid title
+        grid_title = Label(
+            text="📊 Widget Grid (2x2)", 
+            size_hint_y=None, height=40,
+            font_size='16sp',
+            bold=True
+        )
+        right_side.add_widget(grid_title)
+        
+        # 2x2 Grid container
+        grid_container = GridLayout(cols=2, rows=2, spacing=5, size_hint_y=0.8)
+        
+        # Available widget types
+        widget_types = [
+            "weather", "system_monitor", "quote", "finance", 
+            "news", "calendar", "none"
+        ]
+        
+        # Create dropdown for each grid position
+        for position in range(4):
+            # Get current widget in this position
+            current_widget = self._get_widget_at_position(position)
+            current_type = current_widget["type"] if current_widget else "none"
             
-            # Position spinner (0-3 for 2x2 grid)
-            pos_spinner = Spinner(
-                text=str(widget_config["position"]),
-                values=[str(j) for j in range(4)],  # Only 4 positions (0-3)
-                size_hint_y=None, height=40
-            )
-            pos_spinner.bind(text=lambda spinner, value, idx=i: self._update_widget_position(idx, int(value)))
-            widget_grid.add_widget(pos_spinner)
+            # Grid cell container
+            cell = BoxLayout(orientation='vertical', padding=5)
             
-            # Enable/disable button
-            enabled_btn = Button(
-                text="✓" if widget_config["enabled"] else "✗",
-                size_hint_y=None, height=40,
-                background_color=(0, 1, 0, 1) if widget_config["enabled"] else (1, 0, 0, 1)
+            # Position label
+            pos_label = Label(
+                text=f"Position {position}",
+                size_hint_y=None, height=20,
+                font_size='10sp',
+                color=(0.8, 0.8, 0.8, 1)
             )
-            enabled_btn.bind(on_press=lambda btn, idx=i: self._toggle_widget(idx, btn))
-            widget_grid.add_widget(enabled_btn)
+            cell.add_widget(pos_label)
             
-            # Color preview
-            color_btn = Button(
-                text="🎨",
-                size_hint_y=None, height=40,
-                background_color=tuple(widget_config["color"])
+            # Widget type dropdown
+            widget_spinner = Spinner(
+                text=current_type.replace("_", " ").title(),
+                values=[wt.replace("_", " ").title() for wt in widget_types],
+                size_hint_y=None, height=30,
+                font_size='12sp'
             )
-            color_btn.bind(on_press=lambda btn, idx=i: self._change_color(idx))
-            widget_grid.add_widget(color_btn)
+            widget_spinner.bind(text=lambda spinner, value, pos=position: 
+                              self._update_widget_at_position(pos, value.lower().replace(" ", "_")))
+            cell.add_widget(widget_spinner)
+            
+            # Enable/disable button (if widget is assigned)
+            if current_widget:
+                enabled_btn = Button(
+                    text="✓" if current_widget["enabled"] else "✗",
+                    size_hint_y=None, height=25,
+                    background_color=(0, 1, 0, 1) if current_widget["enabled"] else (1, 0, 0, 1)
+                )
+                enabled_btn.bind(on_press=lambda btn, pos=position: self._toggle_widget_at_position(pos, btn))
+                cell.add_widget(enabled_btn)
+            
+            grid_container.add_widget(cell)
         
-        content.add_widget(widget_grid)
+        right_side.add_widget(grid_container)
         
-        # Buttons
+        # Instructions
+        instructions = Label(
+            text="Select widget type for each position\nChoose a theme for coordinated colors",
+            size_hint_y=None, height=40,
+            font_size='10sp',
+            color=(0.7, 0.7, 0.7, 1)
+        )
+        right_side.add_widget(instructions)
+        
+        # Theme selection
+        theme_layout = BoxLayout(orientation='horizontal', size_hint_y=None, height=40, spacing=10)
+        theme_label = Label(text="Theme:", size_hint_x=0.3)
+        theme_layout.add_widget(theme_label)
+        
+        # Available themes
+        themes = {
+            "Warm Waters": {
+                "name": "Warm Waters",
+                "colors": [
+                    [0.8, 0.6, 0.4, 1],  # Sandy Beige
+                    [0.6, 0.8, 0.9, 1],  # Ocean Blue
+                    [0.9, 0.7, 0.5, 1],  # Coral
+                    [0.7, 0.9, 0.8, 1],  # Seafoam
+                ]
+            },
+            "Forest Night": {
+                "name": "Forest Night",
+                "colors": [
+                    [0.2, 0.4, 0.3, 1],  # Dark Green
+                    [0.3, 0.5, 0.4, 1],  # Forest Green
+                    [0.4, 0.3, 0.2, 1],  # Brown
+                    [0.2, 0.3, 0.4, 1],  # Dark Blue
+                ]
+            },
+            "Sunset": {
+                "name": "Sunset",
+                "colors": [
+                    [0.8, 0.4, 0.2, 1],  # Orange
+                    [0.9, 0.5, 0.3, 1],  # Light Orange
+                    [0.7, 0.3, 0.5, 1],  # Purple
+                    [0.6, 0.4, 0.2, 1],  # Brown
+                ]
+            },
+            "Classic": {
+                "name": "Classic",
+                "colors": [
+                    [0.2, 0.4, 0.6, 1],  # Blue
+                    [0.3, 0.6, 0.3, 1],  # Green
+                    [0.6, 0.5, 0.8, 1],  # Purple
+                    [0.2, 0.3, 0.4, 1],  # Dark Blue
+                ]
+            }
+        }
+        
+        # Get current theme
+        current_theme = self._get_current_theme()
+        theme_names = list(themes.keys())
+        
+        theme_spinner = Spinner(
+            text=current_theme,
+            values=theme_names,
+            size_hint_x=0.7
+        )
+        theme_spinner.bind(text=lambda spinner, value: self._update_theme(value, themes))
+        theme_layout.add_widget(theme_spinner)
+        
+        right_side.add_widget(theme_layout)
+        
+        content.add_widget(right_side)
+        
+        # Bottom buttons
         button_layout = BoxLayout(size_hint_y=None, height=50, spacing=10)
         
         apply_btn = Button(text="Apply Changes")
@@ -122,50 +238,135 @@ class ConfigManager:
         
         button_layout.add_widget(apply_btn)
         button_layout.add_widget(cancel_btn)
-        content.add_widget(button_layout)
+        
+        # Main container with buttons
+        main_container = BoxLayout(orientation='vertical')
+        main_container.add_widget(content)
+        main_container.add_widget(button_layout)
         
         # Create popup
         popup = Popup(
-            title="Configure Dashboard",
-            content=content,
-            size_hint=(0.9, 0.9)
+            title="Dashboard Configuration",
+            content=main_container,
+            size_hint=(0.95, 0.9)
         )
         popup.open()
     
-    def _update_widget_position(self, widget_idx, new_position):
-        """Update widget position in configuration"""
-        self.config["widgets"][widget_idx]["position"] = new_position
+    def _get_widget_at_position(self, position):
+        """Get widget configuration at specific position"""
+        for widget in self.config["widgets"]:
+            if widget["position"] == position:
+                return widget
+        return None
     
-    def _toggle_widget(self, widget_idx, button):
-        """Toggle widget enabled/disabled state"""
-        current_state = self.config["widgets"][widget_idx]["enabled"]
-        self.config["widgets"][widget_idx]["enabled"] = not current_state
+    def _update_widget_at_position(self, position, widget_type):
+        """Update widget type at specific position"""
+        # Remove any existing widget at this position
+        for widget in self.config["widgets"]:
+            if widget["position"] == position:
+                if widget_type == "none":
+                    widget["enabled"] = False
+                else:
+                    widget["type"] = widget_type
+                    widget["enabled"] = True
+                return
         
-        # Update button appearance
-        button.text = "✓" if not current_state else "✗"
-        button.background_color = (0, 1, 0, 1) if not current_state else (1, 0, 0, 1)
+        # If no widget exists at this position and type is not "none", create new widget
+        if widget_type != "none":
+            new_widget = {
+                "type": widget_type,
+                "position": position,
+                "enabled": True,
+                "color": [0.2, 0.4, 0.6, 1]  # Default blue
+            }
+            self.config["widgets"].append(new_widget)
     
-    def _change_color(self, widget_idx):
-        """Change widget color (placeholder for now)"""
-        # For now, just cycle through some predefined colors
-        colors = [
-            [0.2, 0.4, 0.6, 1],  # Blue
-            [0.3, 0.6, 0.3, 1],  # Green
-            [0.6, 0.5, 0.8, 1],  # Purple
-            [0.2, 0.3, 0.4, 1],  # Dark Blue
-            [0.6, 0.3, 0.3, 1],  # Red
-            [0.3, 0.3, 0.6, 1],  # Dark Purple
-        ]
-        
-        current_color = self.config["widgets"][widget_idx]["color"]
+    def _toggle_widget_at_position(self, position, button):
+        """Toggle widget enabled/disabled state at specific position"""
+        widget = self._get_widget_at_position(position)
+        if widget:
+            current_state = widget["enabled"]
+            widget["enabled"] = not current_state
+            
+            # Update button appearance
+            button.text = "✓" if not current_state else "✗"
+            button.background_color = (0, 1, 0, 1) if not current_state else (1, 0, 0, 1)
+    
+    def _change_color_at_position(self, position):
+        """Change widget color at specific position"""
+        widget = self._get_widget_at_position(position)
+        if widget:
+            # Cycle through predefined colors
+            colors = [
+                [0.2, 0.4, 0.6, 1],  # Blue
+                [0.3, 0.6, 0.3, 1],  # Green
+                [0.6, 0.5, 0.8, 1],  # Purple
+                [0.2, 0.3, 0.4, 1],  # Dark Blue
+                [0.6, 0.3, 0.3, 1],  # Red
+                [0.3, 0.3, 0.6, 1],  # Dark Purple
+            ]
+            
+            current_color = widget["color"]
+            try:
+                current_index = colors.index(current_color)
+                new_index = (current_index + 1) % len(colors)
+            except ValueError:
+                new_index = 0
+            
+            widget["color"] = colors[new_index]
+    
+    def _update_widget_color(self, position, color_name, colors, color_names):
+        """Update widget color based on color name selection"""
         try:
-            current_index = colors.index(current_color)
-            new_index = (current_index + 1) % len(colors)
-        except ValueError:
-            new_index = 0
+            color_index = color_names.index(color_name)
+            selected_color = colors[color_index]
+            
+            # Get or create widget at this position
+            widget = self._get_widget_at_position(position)
+            if widget:
+                widget["color"] = selected_color
+            else:
+                # Create a default widget with this color
+                new_widget = {
+                    "type": "weather",  # Default widget type
+                    "position": position,
+                    "enabled": True,
+                    "color": selected_color
+                }
+                self.config["widgets"].append(new_widget)
+        except (ValueError, IndexError):
+            print(f"Invalid color selection: {color_name}")
+    
+    def _get_current_theme(self):
+        """Get current theme from config"""
+        return self.config.get("theme", "Warm Waters")
+    
+    def _update_theme(self, theme_name, themes):
+        """Update theme and apply colors to all widgets"""
+        if theme_name not in themes:
+            return
         
-        self.config["widgets"][widget_idx]["color"] = colors[new_index]
-        # Note: Button color will update on next config reload
+        theme = themes[theme_name]
+        self.config["theme"] = theme_name
+        
+        # Apply theme colors to widgets in positions 0-3
+        for position in range(4):
+            if position < len(theme["colors"]):
+                color = theme["colors"][position]
+                
+                # Find or create widget at this position
+                widget = self._get_widget_at_position(position)
+                if widget:
+                    widget["color"] = color
+                else:
+                    # Create a default widget with this color
+                    new_widget = {
+                        "type": "weather",  # Default widget type
+                        "position": position,
+                        "enabled": True,
+                        "color": color
+                    }
+                    self.config["widgets"].append(new_widget)
     
     def _apply_changes(self, popup):
         """Apply configuration changes and rebuild dashboard"""
