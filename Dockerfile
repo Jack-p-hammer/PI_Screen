@@ -1,5 +1,5 @@
 # Use an official Python image for ARM (Raspberry Pi OS 32-bit/64-bit)
-FROM python:3.11-slim-bullseye
+FROM arm32v7/python:3.11-slim-bullseye
 
 # Install system dependencies for Kivy, matplotlib, and fonts
 RUN apt-get update && apt-get install -y \
