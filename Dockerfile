@@ -1,38 +1,59 @@
-# syntax=docker/dockerfile:1
+# Use a 32-bit ARM Python image for Raspberry Pi OS
+FROM arm32v7/python:3.11-slim-bullseye
 
-ARG ARCH=arm32v7
-ARG PYVER=3.11
-FROM ${ARCH}/python:${PYVER}-slim-bookworm
+# Install system dependencies for Kivy, matplotlib, and GUI support
+RUN apt-get update && apt-get install -y \
+    python3-pip \
+    python3-setuptools \
+    python3-dev \
+    build-essential \
+    libgl1-mesa-glx \
+    libgles2-mesa \
+    libsm6 \
+    libxext6 \
+    libxrender1 \
+    libfontconfig1 \
+    libfreetype6 \
+    libjpeg62-turbo \
+    libpng16-16 \
+    libtiff5 \
+    libx11-6 \
+    tk \
+    libmtdev1 \
+    libinput10 \
+    libudev1 \
+    libusb-1.0-0 \
+    libxcb1 \
+    libxkbcommon0 \
+    libxcursor1 \
+    libxrandr2 \
+    libxi6 \
+    libxinerama1 \
+    libxss1 \
+    libxcomposite1 \
+    libxdamage1 \
+    libxtst6 \
+    libxft2 \
+    libxfixes3 \
+    && rm -rf /var/lib/apt/lists/*
 
-ENV PYTHONDONTWRITEBYTECODE=1 \
-    PYTHONUNBUFFERED=1
-
-# System deps (runtime + build for common wheels)
-RUN apt-get update && apt-get install -y --no-install-recommends \
-    build-essential pkg-config gcc g++ \
-    libgl1-mesa-glx libgles2-mesa libglu1-mesa \
-    libx11-6 libxext6 libxrender1 libsm6 \
-    libsdl2-2.0-0 libsdl2-image-2.0-0 libsdl2-mixer-2.0-0 libsdl2-ttf-2.0-0 libmtdev1 \
-    libfreetype6 libfontconfig1 libjpeg62-turbo libpng16-16 zlib1g \
-    libjpeg-dev zlib1g-dev libfreetype6-dev libpng-dev libtiff-dev \
-    libatlas-base-dev gfortran libffi-dev libssl-dev \
-    tk xvfb \
- && rm -rf /var/lib/apt/lists/*
-
+# Set the working directory
 WORKDIR /app
 
-# Install Python deps first for caching
-COPY requirements.txt .
-RUN pip install --upgrade pip \
- && pip install --no-cache-dir -r requirements.txt -v
+# Copy your code
+COPY . /app
 
-# Copy the rest
-COPY . .
+# Install Python dependencies
+RUN pip install --upgrade pip
+RUN pip install --no-cache-dir -r requirements.txt
 
-# Kivy env
-ENV KIVY_NO_ARGS=1 \
-    KIVY_METRICS_DENSITY=1 \
-    KIVY_GL_BACKEND=sdl2
+# Set environment variables for Kivy
+ENV KIVY_NO_ARGS=1
+ENV KIVY_METRICS_DENSITY=1
+ENV KIVY_GL_BACKEND=angle_sdl2
 
-# Default: headless
-CMD ["xvfb-run", "-a", "python", "main.py"]
+# Expose X11 (for host X server)
+ENV DISPLAY=:0
+
+# Start the dashboard (no xvfb, use real display)
+CMD ["python", "main.py"]
